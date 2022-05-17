@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/IGR-205-Robotics/Node-Server#readme",
   "dependencies": {
-    "express": "^4.18.1"
+    "bufferpack": "0.0.6",
+    "express": "^4.18.1",
+    "serialport": "^10.4.0",
+    "util": "^0.12.4"
   }
 }
