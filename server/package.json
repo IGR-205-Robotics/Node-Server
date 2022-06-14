@@ -24,6 +24,7 @@
   "homepage": "https://github.com/hoiast/Marvelmind.js#readme",
   "dependencies": {
     "bufferpack": "^0.0.6",
-    "serialport": "^10.3.0"
+    "dgram": "^1.0.1",
+    "serialport": "^10.4.0"
   }
 }

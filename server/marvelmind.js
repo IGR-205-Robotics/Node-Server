@@ -11,7 +11,7 @@ const EventEmitter = require('events');
 
 class Marvelmind extends EventEmitter {
     constructor({
-        portAddress = 'COM3',
+        portAddress = 'COM6',
         baudRate = 9600,
         debug = false,
         paused = false,
