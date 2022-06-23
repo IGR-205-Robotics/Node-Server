@@ -4,8 +4,8 @@ const { send } = require('process');
 const server = dgram.createSocket('udp4');
 
 global.g_command = "";
-global.g_address = 4;
-global.g_coords = [1455, 13];
+global.g_address = 0;
+global.g_coords = [0, 0];
 
 const marvelmind = new Marvelmind({ debug: false, paused: true });
 marvelmind.toggleReading();
@@ -28,6 +28,14 @@ marvelmind.on('hedgehogMilimeter', (hedgehogAddress, hedgehogCoordinates) => {
 // marvelmind.on('telemetry', (deviceAddress, telemetryData) => {
 //   console.log('telemetry', deviceAddress, telemetryData);
 // });
+let ethernet_ip = "192.168.0.1";
+let ethernet_port = 23;
+let multicast_address = "255.255.255.0";
+
+server.bind(5500, function() {
+    // server.addMembership(multicast_address, ethernet_ip);
+    // console.log("listening on a specific address: " + ethernet_ip);
+  });
 
 server.on('error', (err) => {
     console.log(`server error:\n${err.stack}`);
@@ -50,9 +58,18 @@ server.on('message', (msg, senderInfo) => {
     } else {
         g_command = msg;
         sendCommand();
+        //send to unity
         server.send("saved command :" + msg,senderInfo.port,senderInfo.address,function(error){
             if(error){
               client.close();
+            }else{
+                console.log(`Message sent to ${senderInfo.address}:${senderInfo.port}`);
+            }
+        });
+        //send to access point
+        server.send(msg,ethernet_port,ethernet_ip,function(error){
+            if(error){
+                client.close();
             }else{
                 console.log(`Message sent to ${senderInfo.address}:${senderInfo.port}`);
             }
@@ -64,8 +81,6 @@ server.on('listening', () => {
     const address = server.address();
     console.log(`server listening on ${address.address}:${address.port}`);
 });
-
-server.bind(5500);
 
 function getUpdatedCoords() {
     return {address: g_address, coords: g_coords};
