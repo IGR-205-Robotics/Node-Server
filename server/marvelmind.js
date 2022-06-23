@@ -121,11 +121,19 @@ class Marvelmind extends EventEmitter {
         // let packetSize = data[0];
         // let timestamp = data[1];
         let x = data[2];
-        let y = data[3];
-        let z = data[4];
+        let y = parseInt(data[3].toString().slice(6));
+        let z = parseInt(data[4].toString().slice(6));
         // let flags = data[5];
         let hedgehogAddress = data[6];
         // let orientation = data[7];
+        // console.log(`packet size is ${data[0]}`);
+        // console.log(`timestamp is ${data[1]}`);
+        // console.log(`x coord is ${data[2]}`);
+        // console.log(`y coord is ${data[3].toString().slice(6)}`);
+        // console.log(`z coord is ${data[4].toString().slice(6)}`);
+        // console.log(`flags is ${data[5]}`);
+        // console.log(`hedgehog is ${data[6]}`);
+        // console.log(`orientation is ${data[7]}`);
 
         // . Store New Data
         this.data.hedgehogMilimeter.data[hedgehogAddress] = {

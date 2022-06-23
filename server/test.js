@@ -3,20 +3,21 @@ const dgram = require('dgram');
 const { send } = require('process');
 const server = dgram.createSocket('udp4');
 
+global.g_command = "";
 global.g_address = 4;
-global.g_coords = [1, 1];
+global.g_coords = [1455, 13];
 
 const marvelmind = new Marvelmind({ debug: false, paused: true });
 marvelmind.toggleReading();
 
+marvelmind.on('hedgehogMilimeter', (hedgehogAddress, hedgehogCoordinates) => {
+    console.log('hedgehogMilimeter', hedgehogAddress, hedgehogCoordinates);
+    setUpdatedCoords(hedgehogAddress, [hedgehogCoordinates.x, hedgehogCoordinates.y]);
+});
+
 // marvelmind.on('rawDistances', (hedgehogAddress, beaconsDistances) => {
 //   console.log('rawDistances', hedgehogAddress, beaconsDistances);
 // });
-
-marvelmind.on('hedgehogMilimeter', (hedgehogAddress, hedgehogCoordinates) => {
-    // console.log('hedgehogMilimeter', hedgehogAddress, hedgehogCoordinates);
-    setUpdatedCoords(hedgehogAddress, [hedgehogCoordinates.x, hedgehogCoordinates.y]);
-});
 
 // marvelmind.on('beaconsMilimeter', (beaconsCoordinates) => {
 //   console.log('beaconsMilimeter', beaconsCoordinates);
@@ -41,13 +42,15 @@ server.on('message', (msg, senderInfo) => {
             if(error){
             client.close();
             }else{
-            console.log('positions sent');
+            // console.log('positions sent');
         }
         });
     } else if (msg == "QUIT") {
         process.exit(0);
     } else {
-        server.send("client msg received :" + msg,senderInfo.port,senderInfo.address,function(error){
+        g_command = msg;
+        sendCommand();
+        server.send("saved command :" + msg,senderInfo.port,senderInfo.address,function(error){
             if(error){
               client.close();
             }else{
@@ -71,4 +74,8 @@ function getUpdatedCoords() {
 function setUpdatedCoords(id, coords) {
     g_address = id;
     g_coords = coords;
+}
+
+function sendCommand() {
+    //send command to robo saved in g_command
 }
