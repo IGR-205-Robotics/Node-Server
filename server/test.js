@@ -4,26 +4,23 @@ const dgram = require('dgram');
 const { send } = require('process');
 const socket_udp = dgram.createSocket('udp4');
 const fetch = require('node-fetch');
+const { SerialPort } = require('serialport')
+const { ReadlineParser } = require('@serialport/parser-readline')
 
-// let server_host = "0.0.0.0";//"192.168.0.100";
-// let server_port = 80;
+const port = new SerialPort({ path: '/COM8', baudRate: 9600 });
+const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
+
+// Read the port data
+port.on("open", () => {
+  console.log('serial port open');
+});
+
+parser.on('data', data =>{
+  console.log('got word from arduino:', data);
+});
+
 let socket_host = "192.168.0.1";
 let socket_port = 23;
-
-// const server = http.createServer(function (req, res) {
-//     if(req.url == "/quit") {
-//         res.writeHead(200,  {'Content-Type':'text/html'});
-//         res.end('<h1>...quitting</h1>');
-//         console.log('i show quit');
-//     } else {
-//         res.writeHead(200,  {'Content-Type':'text/html'});
-//         res.end('<h1>Hello World!</h1>');
-//         console.log('i welcome');
-//     }
-// });
-// server.listen(server_port, server_host, () => {
-//     console.log(`Server is running on http://${server_host}:${server_port}`);
-// });
 
 global.g_command = "";
 global.g_address = 0;
@@ -36,21 +33,6 @@ marvelmind.on('hedgehogMilimeter', (hedgehogAddress, hedgehogCoordinates) => {
     console.log('hedgehogMilimeter', hedgehogAddress, hedgehogCoordinates);
     setUpdatedCoords(hedgehogAddress, [hedgehogCoordinates.x, hedgehogCoordinates.y]);
 });
-
-// marvelmind.on('rawDistances', (hedgehogAddress, beaconsDistances) => {
-//   console.log('rawDistances', hedgehogAddress, beaconsDistances);
-// });
-
-// marvelmind.on('beaconsMilimeter', (beaconsCoordinates) => {
-//   console.log('beaconsMilimeter', beaconsCoordinates);
-// });
-// marvelmind.on('quality', (hedgehogAddress, qualityData) => {
-//   console.log('quality', hedgehogAddress, qualityData);
-// });
-// marvelmind.on('telemetry', (deviceAddress, telemetryData) => {
-//   console.log('telemetry', deviceAddress, telemetryData);
-// });
-
 
 socket_udp.bind(5500);
 
@@ -74,15 +56,15 @@ socket_udp.on('message', (msg, senderInfo) => {
         //     process.exit(0);
     } else {
         g_command = msg;
-        sendESPMessage(msg).then(data => {
-            console.log(data);
-        });
+        // sendESPMessage(msg).then(data => {
+        //     console.log(data);
+        // });
         //send to unity
         socket_udp.send("saved command :" + msg,senderInfo.port,senderInfo.address,function(error){
             if(error){
               client.close();
             }else{
-                console.log(`Message sent to ${senderInfo.address}:${senderInfo.port}`);
+                // console.log(`Message sent to ${senderInfo.address}:${senderInfo.port}`);
             }
         });
         //send to access point
@@ -90,7 +72,7 @@ socket_udp.on('message', (msg, senderInfo) => {
             if(error){
                 client.close();
             }else{
-                console.log(`Message sent to ${senderInfo.address}:${senderInfo.port}`);
+                // console.log(`Message sent to ${senderInfo.address}:${senderInfo.port}`);
             }
         });
     }
