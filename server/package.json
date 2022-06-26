@@ -25,6 +25,7 @@
   "dependencies": {
     "bufferpack": "^0.0.6",
     "dgram": "^1.0.1",
+    "node-fetch": "^2.6.7",
     "serialport": "^10.4.0"
   }
 }
