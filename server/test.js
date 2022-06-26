@@ -15,8 +15,12 @@ port.on("open", () => {
   console.log('serial port open');
 });
 
-parser.on('data', data =>{
-  console.log('got word from arduino:', data);
+parser.on('data', command =>{
+    command = command.substring(0, command.length-1);
+  console.log('got word from arduino:', command);
+  sendESPMessage(command).then(data => {
+    console.log(data);
+  });
 });
 
 let socket_host = "192.168.0.1";
@@ -56,9 +60,9 @@ socket_udp.on('message', (msg, senderInfo) => {
         //     process.exit(0);
     } else {
         g_command = msg;
-        // sendESPMessage(msg).then(data => {
-        //     console.log(data);
-        // });
+        sendESPMessage(msg).then(data => {
+            console.log(data);
+        });
         //send to unity
         socket_udp.send("saved command :" + msg,senderInfo.port,senderInfo.address,function(error){
             if(error){
@@ -93,7 +97,28 @@ function setUpdatedCoords(id, coords) {
 }
 
 async function sendESPMessage(comm) {
-    const response = await fetch(`http://192.168.0.105:80/message?command=${comm}`);
+    commInt = 0;
+    switch (comm) {
+        case 'Forwards':
+            commInt = 1;
+            break;
+        case 'Backwards':
+            commInt = 2;
+            break;
+        case 'Left':
+            commInt = 3;
+            break;
+        case 'Right':
+            commInt = 4;
+            break;
+        case 'TurnCounterClockwise':
+            commInt = 9;
+            break; 
+        case 'TurnClockwise':
+            commInt = 10;
+            break;           
+    }
+    const response = await fetch(`http://192.168.0.105:80/message?command=${commInt}`);
     const data = await response.text();
     console.log('send message to esp');
     return data;
